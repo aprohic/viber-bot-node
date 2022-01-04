@@ -4,8 +4,9 @@ const StickerMessage = require(__dirname + "/../../lib/message/sticker-message")
 
 exports.testBuildStickerMessageSanity = test => {
 	const stickerId = 123;
-	const message = new StickerMessage(stickerId);
-	const messageBody = { "type": "sticker", "sticker_id": stickerId };
+	const stickerUrl = "http://dummy.url";
+	const message = new StickerMessage(stickerId, stickerUrl);
+	const messageBody = { "type": "sticker", "sticker_id": stickerId, "url": stickerUrl };
 
 	test.deepEqual(message.toJson(), messageBody);
 	test.ok(!message.keyboard);
