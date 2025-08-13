@@ -10,7 +10,7 @@ import LocationMessage from './location-message';
 import PictureMessage from './picture-message';
 import VideoMessage from './video-message';
 import StickerMessage from './sticker-message';
-import RichMediaMessage from './RichMediaMessage';
+import RichMediaMessage from './rich-media-message';
 
 const SUPPORTED_MESSAGE_TYPES = [TextMessage, UrlMessage, ContactMessage,
     FileMessage, LocationMessage, PictureMessage, VideoMessage, StickerMessage,
