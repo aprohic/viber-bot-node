@@ -1,0 +1,37 @@
+//@ts-nocheck
+
+import _ from 'underscore';
+
+import TextMessage from './text-message';
+import UrlMessage from './url-message';
+import ContactMessage from './contact-message';
+import FileMessage from './file-message';
+import LocationMessage from './location-message';
+import PictureMessage from './picture-message';
+import VideoMessage from './video-message';
+import StickerMessage from './sticker-message';
+import RichMediaMessage from './RichMediaMessage';
+
+const SUPPORTED_MESSAGE_TYPES = [TextMessage, UrlMessage, ContactMessage,
+    FileMessage, LocationMessage, PictureMessage, VideoMessage, StickerMessage,
+    RichMediaMessage];
+
+function MessageFactory(logger) {
+    const self = this;
+
+    this._logger = logger;
+    this._mapping = {};
+
+    _.each(SUPPORTED_MESSAGE_TYPES, messageType => self._mapping[messageType.getType()] = messageType);
+}
+
+MessageFactory.prototype.createMessageFromJson = function (json) {
+    let messageType = json.message.type.toLowerCase();
+    if (!_.has(this._mapping, messageType)) {
+        this._logger.debug(`Could not build message from type ${messageType}. No mapping found`);
+        return;
+    }
+    return this._mapping[messageType].fromJson(json.message, json.timestamp, json.message_token);
+};
+
+export default MessageFactory;

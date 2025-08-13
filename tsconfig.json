@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "target": "ESNext",
+        "esModuleInterop": true,
+        "lib": [
+            "ESNext"
+        ],
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "sourceMap": true,
+        "outDir": "lib",
+        "resolveJsonModule": true,
+        "noImplicitAny": false,
+        "noImplicitThis": false
+    },
+    "files": [
+        "src/index.ts"
+    ]
+}
