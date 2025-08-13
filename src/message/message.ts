@@ -1,6 +1,13 @@
 import _ from 'underscore';
 
-function Message(requiredArguments, optionalKeyboard, optionalTrackingData, timestamp, token, minApiVersion) {
+export default function Message(
+    requiredArguments,
+    optionalKeyboard,
+    optionalTrackingData,
+    timestamp,
+    token,
+    minApiVersion
+) {
     this.timestamp = timestamp;
     this.token = token;
     this.trackingData = this._parseTrackingData(optionalTrackingData);
@@ -24,7 +31,7 @@ Message.prototype.toJson = function () {
 };
 
 Message.prototype.verifyMessage = function () {
-    this.requiredArguments.forEach(argument => {
+    this.requiredArguments.forEach((argument) => {
         if (!_.has(this, argument) || !_.result(this, argument, null)) {
             throw new Error(`Missing required argument ${argument}`);
         }
@@ -38,8 +45,7 @@ Message.prototype._parseTrackingData = function (optionalTrackingData) {
     let trackingData = null;
     try {
         trackingData = JSON.parse(optionalTrackingData);
-    } catch (err) {
-    }
+    } catch (err) {}
     return !_.isObject(trackingData) ? {} : trackingData;
 };
 
@@ -50,5 +56,3 @@ Message.prototype.serializeObject = function (object) {
     }
     return JSON.stringify(object);
 };
-
-export default Message;

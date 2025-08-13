@@ -1,4 +1,4 @@
-function RegexMatcherRouter(logger) {
+export default function RegexMatcherRouter(logger) {
     this._logger = logger;
     this._textRegexpCallbacks = [];
 }
@@ -9,7 +9,7 @@ RegexMatcherRouter.prototype.newMatcher = function (regexp, callback) {
 
 RegexMatcherRouter.prototype.tryGetCallback = function (text) {
     const self = this;
-    const match = this._textRegexpCallbacks.find(reg => {
+    const match = this._textRegexpCallbacks.find((reg) => {
         self._logger.debug(`Matching ${text} with ${reg.regexp}`);
         const result = reg.regexp.exec(text);
 
@@ -21,5 +21,3 @@ RegexMatcherRouter.prototype.tryGetCallback = function (text) {
 
     return match ? match.callback : null;
 };
-
-export default RegexMatcherRouter;

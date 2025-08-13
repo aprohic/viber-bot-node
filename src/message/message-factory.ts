@@ -12,17 +12,25 @@ import VideoMessage from './video-message';
 import StickerMessage from './sticker-message';
 import RichMediaMessage from './rich-media-message';
 
-const SUPPORTED_MESSAGE_TYPES = [TextMessage, UrlMessage, ContactMessage,
-    FileMessage, LocationMessage, PictureMessage, VideoMessage, StickerMessage,
-    RichMediaMessage];
+const SUPPORTED_MESSAGE_TYPES = [
+    TextMessage,
+    UrlMessage,
+    ContactMessage,
+    FileMessage,
+    LocationMessage,
+    PictureMessage,
+    VideoMessage,
+    StickerMessage,
+    RichMediaMessage,
+];
 
-function MessageFactory(logger) {
+export default function MessageFactory(logger) {
     const self = this;
 
     this._logger = logger;
     this._mapping = {};
 
-    _.each(SUPPORTED_MESSAGE_TYPES, messageType => self._mapping[messageType.getType()] = messageType);
+    _.each(SUPPORTED_MESSAGE_TYPES, (messageType) => (self._mapping[messageType.getType()] = messageType));
 }
 
 MessageFactory.prototype.createMessageFromJson = function (json) {
@@ -33,5 +41,3 @@ MessageFactory.prototype.createMessageFromJson = function (json) {
     }
     return this._mapping[messageType].fromJson(json.message, json.timestamp, json.message_token);
 };
-
-export default MessageFactory;

@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import stream from 'stream';
 
-function Middleware(logger, messageValidatorService) {
+export default function Middleware(logger, messageValidatorService) {
     this._logger = logger;
     this._stream = this._createStream();
     this._buffer = null;
@@ -44,8 +44,7 @@ Middleware.prototype._createStream = function () {
     const self = this;
     const duplexStream = new stream.Duplex();
 
-    duplexStream._read = function noop() {
-    };
+    duplexStream._read = function noop() {};
     duplexStream._write = (chunk, encoding, done) => {
         self._buffer = chunk.toString();
         done();
@@ -64,5 +63,3 @@ Middleware.prototype._validateMessageSignature = function (messageValidatorServi
         next();
     });
 };
-
-export default Middleware;

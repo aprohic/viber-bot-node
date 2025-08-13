@@ -5,8 +5,15 @@ import Message from './message';
 
 const REQUIRED_ARGUMENTS = ['keyboard'];
 
-function KeyboardMessage(keyboard, optionalTrackingData, timestamp, token, minApiVersion) {
-    KeyboardMessage.super_.apply(this, [REQUIRED_ARGUMENTS, keyboard, optionalTrackingData, timestamp, token, minApiVersion]);
+export default function KeyboardMessage(keyboard, optionalTrackingData, timestamp, token, minApiVersion) {
+    KeyboardMessage.super_.apply(this, [
+        REQUIRED_ARGUMENTS,
+        keyboard,
+        optionalTrackingData,
+        timestamp,
+        token,
+        minApiVersion,
+    ]);
 }
 
 util.inherits(KeyboardMessage, Message);
@@ -22,5 +29,3 @@ KeyboardMessage.getType = function () {
 KeyboardMessage.prototype.toJson = function () {
     return {};
 };
-
-export default KeyboardMessage;

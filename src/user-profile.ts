@@ -1,4 +1,4 @@
-function UserProfile(id, name, avatar, country, language, apiVersion) {
+export default function UserProfile(id, name, avatar, country, language, apiVersion) {
     this.id = id;
     this.name = name;
     this.avatar = avatar || null;
@@ -10,7 +10,12 @@ function UserProfile(id, name, avatar, country, language, apiVersion) {
 
 UserProfile.fromJson = function (jsonSender) {
     if (!jsonSender) throw new Error('Json data must be non-null');
-    return new UserProfile(jsonSender.id, jsonSender.name, jsonSender.avatar, jsonSender.country, jsonSender.language, jsonSender.api_version);
+    return new UserProfile(
+        jsonSender.id,
+        jsonSender.name,
+        jsonSender.avatar,
+        jsonSender.country,
+        jsonSender.language,
+        jsonSender.api_version
+    );
 };
-
-export default UserProfile;

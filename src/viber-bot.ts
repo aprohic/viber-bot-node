@@ -2,7 +2,7 @@
 import _ from 'underscore';
 import util from 'util';
 import EventEmitter from 'events';
-import JSONBig from 'json-bigint';// const JSONBig = require('json-bigint')({ 'storeAsString': true });
+import JSONBig from 'json-bigint'; // const JSONBig = require('json-bigint')({ 'storeAsString': true });
 
 import NoopLogger from './noop-logger';
 
@@ -27,8 +27,7 @@ const REQUIRED_CONFIGURATION_FIELDS = ['authToken', 'name', 'avatar'];
 const SUBSCRIBED_EVENTS = ['subscribed', 'unsubscribed', 'conversation_started', 'message', 'delivered', 'seen'];
 const API_URL = 'https://chatapi.viber.com/pa';
 
-function ViberBot(loggerOrConfiguration, configuration) {
-
+export default function ViberBot(loggerOrConfiguration, configuration) {
     // backward compatibility: we are still allowing ctor as (logger, configuration);
     // newer should use (configuration) with logger property in it.
     let logger;
@@ -72,7 +71,7 @@ ViberBot.prototype.getBotProfile = function () {
 };
 
 ViberBot.prototype.getUserDetails = function (userProfile) {
-    return this._client.getUserDetails(userProfile.id).then(response => Promise.resolve(response.user));
+    return this._client.getUserDetails(userProfile.id).then((response) => Promise.resolve(response.user));
 };
 
 ViberBot.prototype.getOnlineStatus = function (viberUserIds) {
@@ -84,7 +83,13 @@ ViberBot.prototype.setWebhook = function (url, isInline) {
 };
 
 ViberBot.prototype.sendMessage = function (optionalUserProfile, messages, optionalTrackingData, optionalChatId) {
-    return this._sendMessages(optionalUserProfile, messages, REQUEST_TYPE.SEND_MESSAGE, optionalTrackingData, optionalChatId);
+    return this._sendMessages(
+        optionalUserProfile,
+        messages,
+        REQUEST_TYPE.SEND_MESSAGE,
+        optionalTrackingData,
+        optionalChatId
+    );
 };
 
 ViberBot.prototype.postToPublicChat = function (senderProfile, messages) {
@@ -107,33 +112,71 @@ ViberBot.prototype._sendMessages = function (userProfile, messages, requestType,
     };
 
     let promise = Promise.resolve();
-    _.each(messages, message => {
-        promise = promise.then(() => new Promise((resolve, reject) => {
-            try {
-                message.verifyMessage();
-                return resolve();
-            } catch (err) {
-                return reject(err);
-            }
-        }));
+    _.each(messages, (message) => {
+        promise = promise.then(
+            () =>
+                new Promise((resolve, reject) => {
+                    try {
+                        message.verifyMessage();
+                        return resolve();
+                    } catch (err) {
+                        return reject(err);
+                    }
+                })
+        );
 
-        promise = promise.then(() => new Promise((resolve, reject) => {
-            if (requestType == REQUEST_TYPE.SEND_MESSAGE) return self._sendMessageFromClient(userProfile, message, null, null, optionalChatId, message.minApiVersion).then(response => resolveCallback(response, message, resolve, reject), error => reject(error));
-            if (requestType == REQUEST_TYPE.POST_TO_PUBLIC_CHAT) return self._sendMessageToPublicChat(userProfile, message);
-            return reject(`internal error: unknown RequestType=${requestType}`);
-        }));
+        promise = promise.then(
+            () =>
+                new Promise((resolve, reject) => {
+                    if (requestType == REQUEST_TYPE.SEND_MESSAGE)
+                        return self
+                            ._sendMessageFromClient(
+                                userProfile,
+                                message,
+                                null,
+                                null,
+                                optionalChatId,
+                                message.minApiVersion
+                            )
+                            .then(
+                                (response) => resolveCallback(response, message, resolve, reject),
+                                (error) => reject(error)
+                            );
+                    if (requestType == REQUEST_TYPE.POST_TO_PUBLIC_CHAT)
+                        return self._sendMessageToPublicChat(userProfile, message);
+                    return reject(`internal error: unknown RequestType=${requestType}`);
+                })
+        );
     });
 
-    return promise.then(() => new Promise((resolve, reject) => {
-        if (requestType == REQUEST_TYPE.SEND_MESSAGE) {
-            return self._sendMessageFromClient(userProfile, lastMessage, optionalTrackingData, lastMessage.keyboard, optionalChatId, lastMessage.minApiVersion)
-                .then(response => resolveCallback(response, lastMessage, resolve, reject), error => reject(error));
-        } else if (requestType == REQUEST_TYPE.POST_TO_PUBLIC_CHAT) {
-            return self._sendMessageToPublicChat(userProfile, lastMessage, lastMessage.minApiVersion)
-                .then(response => resolveCallback(response, lastMessage, resolve, reject), error => reject(error));
-        }
-        return reject(`internal error: unknown RequestType=${requestType}`);
-    })).then(() => Promise.resolve(tokens));
+    return promise
+        .then(
+            () =>
+                new Promise((resolve, reject) => {
+                    if (requestType == REQUEST_TYPE.SEND_MESSAGE) {
+                        return self
+                            ._sendMessageFromClient(
+                                userProfile,
+                                lastMessage,
+                                optionalTrackingData,
+                                lastMessage.keyboard,
+                                optionalChatId,
+                                lastMessage.minApiVersion
+                            )
+                            .then(
+                                (response) => resolveCallback(response, lastMessage, resolve, reject),
+                                (error) => reject(error)
+                            );
+                    } else if (requestType == REQUEST_TYPE.POST_TO_PUBLIC_CHAT) {
+                        return self._sendMessageToPublicChat(userProfile, lastMessage, lastMessage.minApiVersion).then(
+                            (response) => resolveCallback(response, lastMessage, resolve, reject),
+                            (error) => reject(error)
+                        );
+                    }
+                    return reject(`internal error: unknown RequestType=${requestType}`);
+                })
+        )
+        .then(() => Promise.resolve(tokens));
 };
 
 ViberBot.prototype._sendMessageToPublicChat = function (senderProfile, message, optionalMinApiVersion) {
@@ -181,7 +224,7 @@ ViberBot.prototype._setupTextMessageReceivedHandler = function () {
 ViberBot.prototype._setupConversationStartedHandler = function () {
     const self = this;
     this.on(EventConsts.CONVERSATION_STARTED, (response, isSubscribed, context) => {
-        _.each(self._callbacks[EventConsts.CONVERSATION_STARTED], callback => {
+        _.each(self._callbacks[EventConsts.CONVERSATION_STARTED], (callback) => {
             callback(response.userProfile, isSubscribed, context, (responseMessage, optionalTrackingData) => {
                 if (!responseMessage) return;
                 if (!(responseMessage instanceof Message)) {
@@ -205,18 +248,33 @@ ViberBot.prototype._getMissingFieldsInConfiguration = function (configuration) {
     return _.difference(REQUIRED_CONFIGURATION_FIELDS, Object.keys(configuration));
 };
 
-ViberBot.prototype._sendMessageFromClient = function (optionalUserProfile, message, optionalTrackingData, optionalKeyboard, optionalChatId, optionalMinApiVersion) {
+ViberBot.prototype._sendMessageFromClient = function (
+    optionalUserProfile,
+    message,
+    optionalTrackingData,
+    optionalKeyboard,
+    optionalChatId,
+    optionalMinApiVersion
+) {
     const jsonMessage = message.toJson();
     let receiver = null;
     if (optionalUserProfile) {
         receiver = optionalUserProfile.id;
     }
-    return this._client.sendMessage(receiver, jsonMessage.type, jsonMessage, optionalTrackingData, optionalKeyboard, optionalChatId, optionalMinApiVersion);
+    return this._client.sendMessage(
+        receiver,
+        jsonMessage.type,
+        jsonMessage,
+        optionalTrackingData,
+        optionalKeyboard,
+        optionalChatId,
+        optionalMinApiVersion
+    );
 };
 
 ViberBot.prototype._registerStreamAndHandleEvents = function (stream) {
     const self = this;
-    stream.on('data', data => {
+    stream.on('data', (data) => {
         try {
             const parsedData = JSONBig.parse(data.toString());
             self._handleEventReceived(parsedData);
@@ -266,5 +324,3 @@ ViberBot.prototype._getUserProfile = function (data) {
     else if (_.has(data, 'user')) return UserProfile.fromJson(data.user);
     return null;
 };
-
-export default ViberBot;

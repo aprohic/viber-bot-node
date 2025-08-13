@@ -5,10 +5,17 @@ import Message from './message';
 
 const REQUIRED_ARGUMENTS = ['text'];
 
-function TextMessage(text, optionalKeyboard, optionalTrackingData, timestamp, token, minApiVersion) {
+export default function TextMessage(text, optionalKeyboard, optionalTrackingData, timestamp, token, minApiVersion) {
     this.text = text;
 
-    TextMessage.super_.apply(this, [REQUIRED_ARGUMENTS, optionalKeyboard, optionalTrackingData, timestamp, token, minApiVersion]);
+    TextMessage.super_.apply(this, [
+        REQUIRED_ARGUMENTS,
+        optionalKeyboard,
+        optionalTrackingData,
+        timestamp,
+        token,
+        minApiVersion,
+    ]);
 }
 
 util.inherits(TextMessage, Message);
@@ -23,9 +30,7 @@ TextMessage.getType = function () {
 
 TextMessage.prototype.toJson = function () {
     return {
-        'type': TextMessage.getType(),
-        'text': this.text,
+        type: TextMessage.getType(),
+        text: this.text,
     };
 };
-
-export default TextMessage;
